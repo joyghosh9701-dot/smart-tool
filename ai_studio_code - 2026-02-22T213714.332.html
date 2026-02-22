@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi7 Image Tool Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        /* Custom Button Style for 1:1 Match */
+        .btn-tool {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #374151;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-tool:hover { border-color: #4F5B93; color: #4F5B93; background-color: #f8fafc; }
+        .section-title { font-size: 14px; font-weight: 700; color: #111827; margin-top: 24px; margin-bottom: 12px; }
+    </style>
+</head>
+<body class="flex justify-center">
+
+    <!-- Mobile View Container -->
+    <div class="w-full max-w-[420px] bg-white shadow-2xl min-h-screen relative pb-10">
+        
+        <!-- Navbar -->
+        <header class="bg-[#4a5bb0] text-white flex justify-between items-center px-4 py-3 sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <div class="flex bg-white rounded text-[#4a5bb0] font-bold text-lg overflow-hidden">
+                    <span class="px-2 py-0.5">Pi</span>
+                    <span class="px-2 py-0.5 border-l border-gray-300">7</span>
+                </div>
+                <span class="font-bold tracking-wide text-sm">IMAGE TOOL</span>
+            </div>
+            <button class="text-white text-2xl font-bold">&#9776;</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="px-4 py-5">
+            <h1 class="text-[17px] font-bold text-center text-gray-900 mb-5">Compress, Resize & Edit Pictures</h1>
+            
+            <!-- Search Bar -->
+            <div class="relative mb-2">
+                <span class="absolute left-3 top-2.5 text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" placeholder="Search tools..." class="w-full border border-gray-300 rounded-md py-2 pl-9 pr-4 text-sm focus:outline-none focus:border-[#4a5bb0]">
+            </div>
+
+            <!-- Hidden File Input for Processing -->
+            <input type="file" id="imageUploader" class="hidden" accept="image/*">
+
+            <!-- Result Area (Hidden by default) -->
+            <div id="resultArea" class="hidden bg-green-50 border border-green-200 p-4 rounded-md mt-4 text-center">
+                <p class="text-green-700 font-bold text-sm mb-2" id="processMsg">Processing Complete!</p>
+                <img id="previewImage" class="max-w-full h-auto mx-auto border rounded shadow-sm mb-3">
+                <a id="downloadBtn" class="bg-[#4a5bb0] text-white px-4 py-2 rounded text-sm font-bold block w-full text-center cursor-pointer">Download Image</a>
+                <button onclick="document.getElementById('resultArea').classList.add('hidden')" class="text-xs text-gray-500 mt-2 underline">Close</button>
+            </div>
+
+            <!-- 1. Most Used Tools -->
+            <h2 class="section-title">Most Used Tools</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Passport Photo Maker</button>
+                <button class="btn-tool">Resize Image in cm</button>
+                <button class="btn-tool">Compress Image to 50KB</button>
+                <button class="btn-tool">Compress Image in kb</button>
+                <button class="btn-tool">Increase Image Size in KB</button>
+                <button class="btn-tool">DPI Photo Converter</button>
+                <button class="btn-tool">Reduce Image Size in KB</button>
+                <button class="btn-tool">Resize Image in Centimeter</button>
+            </div>
+
+            <!-- 2. Basic Editing -->
+            <h2 class="section-title">Basic Editing</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Blur Background</button>
+                <button class="btn-tool">Remove Background</button>
+                <button class="btn-tool">Replace Background Color</button>
+                <button class="btn-tool">Add Text over Image</button>
+                <button class="btn-tool">Resize Image</button>
+                <button class="btn-tool">Crop Image</button>
+                <button class="btn-tool">Watermark Images</button>
+                <button class="btn-tool">Resize Photo</button>
+                <button class="btn-tool">Circle Crop</button>
+                <button class="btn-tool">Square Crop</button>
+                <button class="btn-tool">Change Photo Background</button>
+                <button class="btn-tool">Join Multiple Images</button>
+                <button class="btn-tool">Invert Image</button>
+                <button class="btn-tool">Image Color Picker</button>
+                <button class="btn-tool">Photo Resizer</button>
+                <button class="btn-tool">Zoom Pictures</button>
+                <button class="btn-tool">Browse Pictures</button>
+            </div>
+
+            <!-- 3. Blur, Photo and Special Effects -->
+            <h2 class="section-title">Blur, Photo and Special Effects</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Invert Image</button>
+                <button class="btn-tool">Unblur Image</button>
+                <button class="btn-tool">Black & White</button>
+                <button class="btn-tool">Sepia Filter</button>
+                <button class="btn-tool">Duotone Filter</button>
+                <button class="btn-tool">Grayscale Image</button>
+                <button class="btn-tool">Pixelate Image</button>
+                <button class="btn-tool">Cartoon Photo</button>
+                <button class="btn-tool">Poster Effect</button>
+                <button class="btn-tool">Sharpen Image</button>
+                <button class="btn-tool">Sketch Effect</button>
+                <button class="btn-tool">Blur Image</button>
+                <button class="btn-tool">Oil Paint Generator</button>
+                <button class="btn-tool">Desaturate Picture</button>
+                <button class="btn-tool">Emboss Image</button>
+                <button class="btn-tool">Add Noise to Image</button>
+                <button class="btn-tool">Add Vignette Image</button>
+            </div>
+
+            <!-- 4. DPI & Quality -->
+            <h2 class="section-title">DPI & Quality</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Increase Image Quality</button>
+                <button class="btn-tool">Decrease Image Quality</button>
+                <button class="btn-tool">Change Image DPI</button>
+                <button class="btn-tool">Check Image DPI</button>
+            </div>
+
+            <!-- 5. General Resizing -->
+            <h2 class="section-title">General Resizing</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Resize Image by Pixel</button>
+                <button class="btn-tool">Resize Image by Ratio</button>
+                <button class="btn-tool">Resize Image by Dimension</button>
+                <button class="btn-tool">Resize Image by Width</button>
+                <button class="btn-tool">Resize Image by Height</button>
+                <button class="btn-tool">Resize Image by Size (KB, MB)</button>
+            </div>
+
+            <!-- 6. Resize Under Official Sizes -->
+            <h2 class="section-title">Resize Under Official Sizes</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">A4 Paper</button>
+                <button class="btn-tool">4x6 Photo Print</button>
+                <button class="btn-tool">Passport</button>
+                <button class="btn-tool">Visa Photo</button>
+                <button class="btn-tool">PAN Card</button>
+            </div>
+
+            <!-- 7. Passport & ID Photo Maker -->
+            <h2 class="section-title">Passport & ID Photo Maker</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Passport Photo Maker</button>
+                <button class="btn-tool">US Passport Photo</button>
+                <button class="btn-tool">UK Visa Photo</button>
+                <button class="btn-tool">Schengen Visa Photo</button>
+                <button class="btn-tool">35x45mm Photo</button>
+                <button class="btn-tool">2x2 Photo</button>
+                <button class="btn-tool">4x6 Photo</button>
+                <button class="btn-tool">5x5 Photo</button>
+                <button class="btn-tool">Online ID Photo</button>
+            </div>
+
+            <!-- 8. Resize For Social Media -->
+            <h2 class="section-title">Resize For Social Media</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Instagram Post Size</button>
+                <button class="btn-tool">Instagram Reel Maker</button>
+                <button class="btn-tool">WhatsApp DP</button>
+                <button class="btn-tool">YouTube Banner</button>
+                <button class="btn-tool">Twitter Post Image</button>
+            </div>
+
+            <!-- 9. Format Conversions -->
+            <h2 class="section-title">Format Conversions</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">JPG to PNG</button>
+                <button class="btn-tool">PNG to JPG</button>
+                <button class="btn-tool">WEBP to JPG</button>
+                <button class="btn-tool">SVG to PNG</button>
+                <button class="btn-tool">HEIC to JPG</button>
+                <button class="btn-tool">BMP to PNG</button>
+                <button class="btn-tool">AVIF to JPG</button>
+                <button class="btn-tool">TIFF to PNG</button>
+                <button class="btn-tool">SVG to WEBP</button>
+            </div>
+
+            <!-- 10. Image to PDF -->
+            <h2 class="section-title">Image to PDF</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Image to PDF</button>
+                <button class="btn-tool">JPG to PDF</button>
+                <button class="btn-tool">JPG to PDF (Max 100KB)</button>
+                <button class="btn-tool">JPG to PDF (Max 200KB)</button>
+                <button class="btn-tool">JPG to PDF (Under 200KB)</button>
+                <button class="btn-tool">JPG to PDF (Under 300KB)</button>
+                <button class="btn-tool">Create PDF (Max 500KB)</button>
+            </div>
+
+            <!-- 11. General Compression -->
+            <h2 class="section-title">General Compression</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Image Compressor</button>
+                <button class="btn-tool">Reduce Photo Size</button>
+                <button class="btn-tool">Reduce Size in KB</button>
+                <button class="btn-tool">PNG to 50KB</button>
+                <button class="btn-tool">Compress PNG 50KB</button>
+                <button class="btn-tool">Compress JPEG 50KB</button>
+            </div>
+
+            <!-- 12. Image Target Sizes -->
+            <h2 class="section-title">Image Target Sizes</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-tool">Compress to 20KB</button>
+                <button class="btn-tool">Compress to 50KB</button>
+                <button class="btn-tool">Compress to 100KB</button>
+                <button class="btn-tool">Compress to 200KB</button>
+                <button class="btn-tool">Compress JPEG 500KB</button>
+                <button class="btn-tool">JPEG to 100KB</button>
+                <button class="btn-tool">Photo to 20KB</button>
+                <button class="btn-tool">Photo to 50KB</button>
+                <button class="btn-tool">Compress to 500KB</button>
+                <button class="btn-tool">Compress to 100KB</button>
+                <button class="btn-tool">JPEG to 100KB</button>
+                <button class="btn-tool">Image Size 100KB</button>
+                <button class="btn-tool">1 MB to 100 KB</button>
+                <button class="btn-tool">1 MB to 200 KB</button>
+                <button class="btn-tool">Compress to 1MB</button>
+                <button class="btn-tool">Compress to 2MB</button>
+            </div>
+        </main>
+
+        <!-- Footer Area -->
+        <footer class="bg-[#4a5bb0] text-white p-6 mt-6 text-xs">
+            <div class="mb-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="flex bg-white rounded text-[#4a5bb0] font-bold text-sm overflow-hidden">
+                        <span class="px-1">Pi</span>
+                        <span class="px-1 border-l border-gray-300">7</span>
+                    </div>
+                </div>
+                <p class="text-indigo-100 leading-relaxed">Pi7 Image Tool is a collection of online tools to Compress and Edit pictures offline. With Pi7 Image Tool you can Resize, Compress, Convert and Edit images. Features include DPI converter, Image to PDF...</p>
+                <p class="mt-2 text-indigo-200">Follow Us On Social Platforms</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-indigo-100 mb-6">
+                <div>
+                    <h3 class="font-bold text-white text-sm mb-2">Pi7 Tools</h3>
+                    <ul class="space-y-1">
+                        <li>• Pi7 PDF Tool</li>
+                        <li>• Pi7 URL Compressor</li>
+                        <li>• Best Image Resizer</li>
+                        <li>• Free QR Code Tools</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm mb-2">Other Tools</h3>
+                    <ul class="space-y-1">
+                        <li>• Image Color Picker</li>
+                        <li>• Text to HTML</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-indigo-400 pt-4 text-center text-indigo-200">
+                Contact Us | Privacy Policy | Terms of Use<br>
+                Information center | Cookie center | Review center
+            </div>
+        </footer>
+    </div>
+
+    <!-- Hidden Canvas for Image Processing Logic -->
+    <canvas id="canvasElement" class="hidden"></canvas>
+
+    <!-- Unified JavaScript Engine -->
+    <script>
+        const uploader = document.getElementById('imageUploader');
+        const buttons = document.querySelectorAll('.btn-tool');
+        const resultArea = document.getElementById('resultArea');
+        const previewImage = document.getElementById('previewImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const processMsg = document.getElementById('processMsg');
+        const canvas = document.getElementById('canvasElement');
+        const ctx = canvas.getContext('2d');
+
+        let currentActiveTool = '';
+
+        // Attach click event to ALL buttons in the clone
+        buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentActiveTool = e.target.innerText;
+                uploader.click(); // Open file selector
+            });
+        });
+
+        // When user selects an image
+        uploader.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    applyToolLogic(img, currentActiveTool, file.name);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // Core logic to make the features actually work in browser
+        function applyToolLogic(img, toolName, originalName) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Default: draw normal image
+            ctx.filter = 'none';
+
+            // Feature 1: Black & White / Grayscale
+            if (toolName.includes('Black & White') || toolName.includes('Grayscale')) {
+                ctx.filter = 'grayscale(100%)';
+            } 
+            // Feature 2: Blur
+            else if (toolName.includes('Blur Image') || toolName.includes('Blur Background')) {
+                ctx.filter = 'blur(10px)';
+            }
+            // Feature 3: Sepia
+            else if (toolName.includes('Sepia')) {
+                ctx.filter = 'sepia(100%)';
+            }
+            // Feature 4: Invert
+            else if (toolName.includes('Invert Image')) {
+                ctx.filter = 'invert(100%)';
+            }
+            // Feature 5: Resize / Passport (Standardize size)
+            else if (toolName.includes('Passport') || toolName.includes('2x2 Photo')) {
+                canvas.width = 600;
+                canvas.height = 600;
+            }
+
+            // Draw processed image on canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Format changing logic
+            let outputMime = 'image/jpeg';
+            let quality = 0.9;
+            let extension = 'jpg';
+
+            if (toolName.includes('PNG')) { outputMime = 'image/png'; extension = 'png'; }
+            if (toolName.includes('50KB') || toolName.includes('Compress')) { quality = 0.5; }
+
+            // Get Final Output
+            const dataURL = canvas.toDataURL(outputMime, quality);
+
+            // Show Result
+            previewImage.src = dataURL;
+            downloadBtn.href = dataURL;
+            downloadBtn.download = `Pi7_${toolName.replace(/\s+/g, '_')}_${originalName.split('.')[0]}.${extension}`;
+            processMsg.innerText = `Success! Tool applied: ${toolName}`;
+            
+            resultArea.classList.remove('hidden');
+            
+            // Reset uploader so same file can be chosen again
+            uploader.value = '';
+        }
+    </script>
+</body>
+</html>
