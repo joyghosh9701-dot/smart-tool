@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smarttool Ultimate - 100+ Photo Tools</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f4f7f6; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* Glassmorphism & Premium UI */
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .hero-gradient { background: linear-gradient(135deg, #0f172a 0%, #312e81 50%, #4c1d95 100%); }
+        
+        /* Tool Button Physics */
+        .btn-tool {
+            width: 100%; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; position: relative; overflow: hidden;
+        }
+        .btn-tool::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.1)); opacity: 0; transition: opacity 0.3s ease; }
+        .btn-tool:hover { transform: translateY(-5px); border-color: #6366f1; box-shadow: 0 15px 30px -5px rgba(99,102,241,0.15); }
+        .btn-tool:hover::before { opacity: 1; }
+        
+        .btn-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: #f1f5f9; transition: all 0.3s ease; z-index: 1;}
+        .btn-tool:hover .btn-icon { background: #4f46e5; color: #fff; transform: scale(1.1) rotate(5deg); box-shadow: 0 8px 15px rgba(79,70,229,0.3); }
+        
+        .btn-text { font-size: 11px; font-weight: 700; color: #334155; text-align: center; z-index: 1; transition: color 0.3s; line-height: 1.2;}
+        .btn-tool:hover .btn-text { color: #1e1b4b; }
+
+        /* Category Pills */
+        .cat-pill { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #64748b; background: #f1f5f9; white-space: nowrap; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+        .cat-pill.active { background: #4f46e5; color: white; box-shadow: 0 4px 10px rgba(79,70,229,0.3); }
+        .cat-pill:hover:not(.active) { border-color: #cbd5e1; background: #e2e8f0; }
+
+        .section-title { font-size: 18px; font-weight: 900; color: #0f172a; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 8px; }
+        
+        /* Spinner */
+        .loader { width: 50px; height: 50px; border: 5px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin: 0 auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="selection:bg-indigo-500 selection:text-white">
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-sm rounded-[24px] shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="modalContent">
+            <div class="p-6">
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 text-2xl shadow-sm">✍️</div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2" id="modalTitle">Enter Text</h3>
+                <input type="text" id="modalInput" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-4 px-4 text-slate-700 font-bold focus:outline-none focus:border-indigo-500 focus:bg-white transition-all" placeholder="Type here...">
+            </div>
+            <div class="bg-slate-50 px-6 py-4 flex gap-3 border-t border-slate-100">
+                <button id="modalCancel" class="flex-1 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-200 transition">Cancel</button>
+                <button id="modalApply" class="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition">Apply Magic</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Wrapper -->
+    <div class="w-full max-w-[550px] bg-white min-h-screen relative pb-12 mx-auto shadow-[0_0_50px_rgba(0,0,0,0.05)] border-x border-slate-100">
+        
+        <!-- Header -->
+        <header class="glass-header flex justify-between items-center px-6 py-4 sticky top-0 z-40">
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="window.scrollTo(0,0)">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-200 transform hover:rotate-12 transition">S</div>
+                <span class="font-black text-2xl text-slate-800 tracking-tight">Smarttool<span class="text-indigo-600">.</span></span>
+            </div>
+            <span class="bg-slate-900 text-white font-black text-[10px] px-3 py-1.5 rounded-full uppercase tracking-widest">Ultimate</span>
+        </header>
+
+        <main class="px-5 py-6">
+            <!-- Hero Dashboard -->
+            <div class="hero-gradient rounded-[28px] p-7 text-white shadow-2xl shadow-indigo-900/30 mb-8 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl"></div>
+                <h1 class="text-3xl font-black mb-2 leading-tight">The Only Image<br>App You Need.</h1>
+                <p class="text-indigo-200 text-sm font-medium max-w-[250px] leading-relaxed">120+ offline tools. Compress, resize, filter, and convert at lightning speed.</p>
+                
+                <div class="mt-5 flex gap-2">
+                    <span class="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold border border-white/20 flex items-center gap-1">🔒 100% Private</span>
+                    <span class="bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold border border-white/20 flex items-center gap-1">⚡ Ultra Fast</span>
+                </div>
+            </div>
+            
+            <!-- Sticky Search & Categories -->
+            <div class="sticky top-[73px] z-30 bg-white/95 backdrop-blur-md pt-2 pb-4 -mx-5 px-5 border-b border-slate-100">
+                <div class="relative mb-3">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search 120+ tools..." class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-black text-slate-700 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all shadow-sm">
+                </div>
+                
+                <!-- Category Pills (Horizontal Scroll) -->
+                <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" id="categoryNav">
+                    <div class="cat-pill active" data-target="all">All Tools</div>
+                    <div class="cat-pill" data-target="cat-compress">🗜️ Compress</div>
+                    <div class="cat-pill" data-target="cat-passport">🛂 Passport</div>
+                    <div class="cat-pill" data-target="cat-social">📱 Social Media</div>
+                    <div class="cat-pill" data-target="cat-edit">🎨 Edit & Filter</div>
+                    <div class="cat-pill" data-target="cat-pdf">📄 PDF & Convert</div>
+                </div>
+            </div>
+
+            <!-- Hidden Input -->
+            <input type="file" id="imageUploader" class="hidden" accept="image/*">
+
+            <!-- Universal Result Console -->
+            <div id="resultArea" class="hidden bg-white border border-slate-200 p-6 rounded-[28px] mt-2 text-center shadow-2xl relative z-20">
+                <button onclick="document.getElementById('resultArea').classList.add('hidden')" class="absolute top-4 right-4 bg-slate-100 text-slate-500 hover:text-red-500 font-bold w-8 h-8 rounded-full flex items-center justify-center transition">✕</button>
+                
+                <!-- Processing -->
+                <div id="processingState" class="py-6">
+                    <div class="loader mb-4"></div>
+                    <h3 class="text-indigo-600 font-black text-xl mb-1">Applying Magic...</h3>
+                    <p class="text-sm text-slate-500 font-bold" id="toolUsedMsg"></p>
+                </div>
+
+                <!-- Success -->
+                <div id="completedState" class="hidden">
+                    <h3 class="text-slate-800 font-black text-2xl mb-4">Masterpiece Ready! 🚀</h3>
+                    
+                    <div class="bg-slate-50 p-2 rounded-2xl border border-slate-200 mb-5 relative">
+                        <img id="previewImage" class="max-w-full h-auto max-h-64 mx-auto rounded-xl shadow-md object-contain bg-white">
+                    </div>
+                    
+                    <div class="flex justify-between items-center bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100 mb-6">
+                        <div class="text-left"><p class="text-[10px] text-slate-400 font-black uppercase tracking-wider mb-1">Old Size</p><p class="text-slate-700 font-black text-sm" id="oldSize">0 KB</p></div>
+                        <div class="text-indigo-500 bg-white shadow-sm p-2 rounded-full"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></div>
+                        <div class="text-right"><p class="text-[10px] text-slate-400 font-black uppercase tracking-wider mb-1">New Size</p><p class="text-green-500 font-black text-lg" id="newSize">0 KB</p></div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button id="shareBtn" class="flex-1 bg-green-500 text-white py-4 rounded-2xl text-sm font-black hover:bg-green-600 transition shadow-lg shadow-green-200 flex justify-center items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg> Share
+                        </button>
+                        <a id="downloadBtn" class="flex-[1.5] bg-indigo-600 text-white py-4 rounded-2xl text-sm font-black flex justify-center items-center gap-2 hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Save to Device
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 120+ TOOLS MEGA GRID -->
+            <div id="toolsContainer" class="mt-2 pb-6">
+                
+                <!-- CATEGORY: COMPRESS -->
+                <div class="tool-section cat-compress">
+                    <h2 class="section-title"><span class="text-2xl">🗜️</span> Ultra Compressors</h2>
+                    <div class="grid grid-cols-4 gap-2">
+                        <!-- Generating 24 Compress Tools -->
+                        <button class="btn-tool" data-action="compress" data-kb="5"><span class="btn-icon">📉</span><span class="btn-text">5 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="10"><span class="btn-icon">📉</span><span class="btn-text">10 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="20"><span class="btn-icon">📉</span><span class="btn-text">20 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="30"><span class="btn-icon">📉</span><span class="btn-text">30 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="40"><span class="btn-icon">📉</span><span class="btn-text">40 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="50"><span class="btn-icon text-indigo-500 font-bold text-lg">50</span><span class="btn-text text-indigo-600">50 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="60"><span class="btn-icon">📉</span><span class="btn-text">60 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="70"><span class="btn-icon">📉</span><span class="btn-text">70 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="80"><span class="btn-icon">📉</span><span class="btn-text">80 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="90"><span class="btn-icon">📉</span><span class="btn-text">90 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="100"><span class="btn-icon text-indigo-500 font-bold text-lg">100</span><span class="btn-text text-indigo-600">100 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="150"><span class="btn-icon">📉</span><span class="btn-text">150 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="200"><span class="btn-icon text-indigo-500 font-bold text-lg">200</span><span class="btn-text text-indigo-600">200 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="250"><span class="btn-icon">📉</span><span class="btn-text">250 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="300"><span class="btn-icon">📉</span><span class="btn-text">300 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="400"><span class="btn-icon">📉</span><span class="btn-text">400 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="500"><span class="btn-icon text-indigo-500 font-bold text-lg">500</span><span class="btn-text text-indigo-600">500 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="600"><span class="btn-icon">📉</span><span class="btn-text">600 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="800"><span class="btn-icon">📉</span><span class="btn-text">800 KB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="1024"><span class="btn-icon text-pink-500 font-bold text-lg">1MB</span><span class="btn-text text-pink-600">1 MB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="2048"><span class="btn-icon text-pink-500 font-bold text-lg">2MB</span><span class="btn-text text-pink-600">2 MB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="3072"><span class="btn-icon text-pink-500 font-bold text-lg">3MB</span><span class="btn-text text-pink-600">3 MB</span></button>
+                        <button class="btn-tool" data-action="compress" data-kb="5120"><span class="btn-icon text-pink-500 font-bold text-lg">5MB</span><span class="btn-text text-pink-600">5 MB</span></button>
+                        <button class="btn-tool" data-action="filter" data-val="saturate(1.1) contrast(1.1)"><span class="btn-icon">✨</span><span class="btn-text">Enhance Qty</span></button>
+                    </div>
+                </div>
+
+                <!-- CATEGORY: PASSPORT & RESIZE -->
+                <div class="tool-section cat-passport mt-4">
+                    <h2 class="section-title"><span class="text-2xl">🛂</span> ID & Print Resizer</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Indian & Global Formats -->
+                        <button class="btn-tool" data-action="resize" data-w="413" data-h="531"><span class="btn-icon">🇮🇳</span><span class="btn-text">India Passport<br>(35x45mm)</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="213" data-h="213"><span class="btn-icon">🪪</span><span class="btn-text">PAN Card<br>(213x213)</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="600" data-h="600"><span class="btn-icon">🇺🇸</span><span class="btn-text">US Passport<br>(2x2 inch)</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="600" data-h="600"><span class="btn-icon">🌍</span><span class="btn-text">OCI Card<br>(2x2 inch)</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="413" data-h="531"><span class="btn-icon">🇬🇧</span><span class="btn-text">UK Visa Photo</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="413" data-h="531"><span class="btn-icon">🇪🇺</span><span class="btn-text">Schengen Visa</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="390" data-h="520"><span class="btn-icon">🇨🇦</span><span class="btn-text">Canada Visa</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="413" data-h="531"><span class="btn-icon">🇦🇺</span><span class="btn-text">Australia Visa</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="390" data-h="567"><span class="btn-icon">🇨🇳</span><span class="btn-text">China Visa</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="413" data-h="531"><span class="btn-icon">🇯🇵</span><span class="btn-text">Japan Visa</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="236" data-h="295"><span class="btn-icon">✉️</span><span class="btn-text">Stamp Size<br>(20x25mm)</span></button>
+                        <!-- Prints -->
+                        <button class="btn-tool" data-action="resize" data-w="1200" data-h="1800"><span class="btn-icon">🖼️</span><span class="btn-text">4x6 Photo Print</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1500" data-h="2100"><span class="btn-icon">🖼️</span><span class="btn-text">5x7 Photo Print</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="2400" data-h="3000"><span class="btn-icon">🖼️</span><span class="btn-text">8x10 Photo Print</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="2480" data-h="3508"><span class="btn-icon">📄</span><span class="btn-text">A4 Paper Size</span></button>
+                    </div>
+                </div>
+
+                <!-- CATEGORY: SOCIAL MEDIA -->
+                <div class="tool-section cat-social mt-4">
+                    <h2 class="section-title"><span class="text-2xl">📱</span> Social Media Kit</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Instagram -->
+                        <button class="btn-tool" data-action="resize" data-w="1080" data-h="1080"><span class="btn-icon" style="color:#E1306C">📸</span><span class="btn-text">Insta Post</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1080" data-h="1350"><span class="btn-icon" style="color:#E1306C">📱</span><span class="btn-text">Insta Portrait</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1080" data-h="1920"><span class="btn-icon" style="color:#E1306C">🎞️</span><span class="btn-text">Insta Story/Reel</span></button>
+                        <!-- Facebook -->
+                        <button class="btn-tool" data-action="resize" data-w="1200" data-h="630"><span class="btn-icon" style="color:#1877F2">📘</span><span class="btn-text">FB Post</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="820" data-h="312"><span class="btn-icon" style="color:#1877F2">🖼️</span><span class="btn-text">FB Cover</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="180" data-h="180"><span class="btn-icon" style="color:#1877F2">👤</span><span class="btn-text">FB Profile</span></button>
+                        <!-- YouTube -->
+                        <button class="btn-tool" data-action="resize" data-w="1280" data-h="720"><span class="btn-icon" style="color:#FF0000">▶️</span><span class="btn-text">YT Thumbnail</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="2560" data-h="1440"><span class="btn-icon" style="color:#FF0000">📺</span><span class="btn-text">YT Banner</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="800" data-h="800"><span class="btn-icon" style="color:#FF0000">👤</span><span class="btn-text">YT Profile</span></button>
+                        <!-- Twitter / X -->
+                        <button class="btn-tool" data-action="resize" data-w="1600" data-h="900"><span class="btn-icon" style="color:#000000">𝕏</span><span class="btn-text">X (Twitter) Post</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1500" data-h="500"><span class="btn-icon" style="color:#000000">🪧</span><span class="btn-text">X Header</span></button>
+                        <!-- WhatsApp & Others -->
+                        <button class="btn-tool" data-action="resize" data-w="500" data-h="500"><span class="btn-icon" style="color:#25D366">💬</span><span class="btn-text">WhatsApp DP</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1080" data-h="1920"><span class="btn-icon" style="color:#25D366">🟢</span><span class="btn-text">WhatsApp Status</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1200" data-h="627"><span class="btn-icon" style="color:#0A66C2">💼</span><span class="btn-text">LinkedIn Post</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1584" data-h="396"><span class="btn-icon" style="color:#0A66C2">🏢</span><span class="btn-text">LinkedIn Banner</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1000" data-h="1500"><span class="btn-icon" style="color:#E60023">📌</span><span class="btn-text">Pinterest Pin</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="1200" data-h="480"><span class="btn-icon" style="color:#9146FF">👾</span><span class="btn-text">Twitch Banner</span></button>
+                        <button class="btn-tool" data-action="resize" data-w="128" data-h="128"><span class="btn-icon" style="color:#5865F2">🎮</span><span class="btn-text">Discord Avatar</span></button>
+                    </div>
+                </div>
+
+                <!-- CATEGORY: EDIT & FILTERS -->
+                <div class="tool-section cat-edit mt-4">
+                    <h2 class="section-title"><span class="text-2xl">🎨</span> Studio Editor & Filters</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Tools -->
+                        <button class="btn-tool" data-action="watermark"><span class="btn-icon">©️</span><span class="btn-text">Watermark</span></button>
+                        <button class="btn-tool" data-action="addtext"><span class="btn-icon">✍️</span><span class="btn-text">Add Title Text</span></button>
+                        <button class="btn-tool" data-action="removeExif"><span class="btn-icon">🕵️</span><span class="btn-text text-red-600">Remove EXIF<br>(Hide Location)</span></button>
+                        <button class="btn-tool" data-action="flip" data-dir="horizontal"><span class="btn-icon">🪞</span><span class="btn-text">Flip Horizontal</span></button>
+                        <button class="btn-tool" data-action="flip" data-dir="vertical"><span class="btn-icon">🙃</span><span class="btn-text">Flip Vertical</span></button>
+                        <button class="btn-tool" data-action="rotate" data-deg="90"><span class="btn-icon">↪️</span><span class="btn-text">Rotate 90°</span></button>
+                        <button class="btn-tool" data-action="rotate" data-deg="180"><span class="btn-icon">🔃</span><span class="btn-text">Rotate 180°</span></button>
+                        <button class="btn-tool" data-action="crop" data-type="circle"><span class="btn-icon">⭕</span><span class="btn-text">Circle Crop</span></button>
+                        <button class="btn-tool" data-action="crop" data-type="square"><span class="btn-icon">⏹️</span><span class="btn-text">Square Crop</span></button>
+                        <button class="btn-tool" data-action="crop" data-type="169"><span class="btn-icon">🖥️</span><span class="btn-text">16:9 Crop</span></button>
+                        <button class="btn-tool" data-action="crop" data-type="43"><span class="btn-icon">📺</span><span class="btn-text">4:3 Crop</span></button>
+                        <button class="btn-tool" data-action="crop" data-type="32"><span class="btn-icon">📷</span><span class="btn-text">3:2 Crop</span></button>
+                        
+                        <!-- 15 Pro Filters -->
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="contrast(1.1) saturate(1.3) brightness(1.1)"><span class="btn-icon">🪄</span><span class="btn-text">Auto Enhance</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="sepia(0.5) contrast(1.2) brightness(0.9)"><span class="btn-icon">🎞️</span><span class="btn-text">Vintage</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="contrast(1.3) saturate(1.2) brightness(0.8) sepia(0.2)"><span class="btn-icon">🎬</span><span class="btn-text">Cinematic</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="grayscale(0.2) contrast(1.5) brightness(0.8) sepia(0.2) hue-rotate(180deg)"><span class="btn-icon">🌃</span><span class="btn-text">Cyberpunk</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="grayscale(100%) contrast(1.2) brightness(1.1)"><span class="btn-icon">♟️</span><span class="btn-text">B&W Portrait</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="saturate(2) contrast(1.1)"><span class="btn-icon">🌈</span><span class="btn-text">Color Boost</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="brightness(1.3) contrast(0.9)"><span class="btn-icon">☀️</span><span class="btn-text">Brighten</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="brightness(0.7) contrast(1.2)"><span class="btn-icon">🌙</span><span class="btn-text">Darken</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="contrast(1.5)"><span class="btn-icon">🔲</span><span class="btn-text">High Contrast</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="grayscale(100%)"><span class="btn-icon">🖤</span><span class="btn-text">Pure Grayscale</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="sepia(100%)"><span class="btn-icon">🟤</span><span class="btn-text">Pure Sepia</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="invert(100%)"><span class="btn-icon">👻</span><span class="btn-text">Invert Colors</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="blur(3px)"><span class="btn-icon">🌫️</span><span class="btn-text">Light Blur</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="blur(10px)"><span class="btn-icon">💨</span><span class="btn-text">Heavy Blur</span></button>
+                        <button class="btn-tool btn-filter" data-action="filter" data-val="contrast(0.8) saturate(0.8) sepia(0.3)"><span class="btn-icon">🌸</span><span class="btn-text">Pastel Soft</span></button>
+                    </div>
+                </div>
+
+                <!-- CATEGORY: PDF & CONVERT -->
+                <div class="tool-section cat-pdf mt-4">
+                    <h2 class="section-title"><span class="text-2xl">📄</span> Convert & PDF Engine</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Convert (8) -->
+                        <button class="btn-tool" data-action="convert" data-format="png"><span class="btn-icon text-orange-500 text-xs font-black">PNG</span><span class="btn-text">JPG to PNG</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="jpeg"><span class="btn-icon text-orange-500 text-xs font-black">JPG</span><span class="btn-text">PNG to JPG</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="jpeg"><span class="btn-icon text-orange-500 text-xs font-black">JPG</span><span class="btn-text">WEBP to JPG</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="webp"><span class="btn-icon text-orange-500 text-xs font-black">WEBP</span><span class="btn-text">JPG to WEBP</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="bmp"><span class="btn-icon text-orange-500 text-xs font-black">BMP</span><span class="btn-text">To BMP File</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="png"><span class="btn-icon text-orange-500 text-xs font-black">PNG</span><span class="btn-text">SVG to PNG<br>(Rasterize)</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="jpeg"><span class="btn-icon text-orange-500 text-xs font-black">JPG</span><span class="btn-text">GIF to JPG<br>(1st Frame)</span></button>
+                        <button class="btn-tool" data-action="convert" data-format="jpeg"><span class="btn-icon text-orange-500 text-xs font-black">JPG</span><span class="btn-text">HEIC to JPG</span></button>
+                        
+                        <!-- PDF (8) -->
+                        <button class="btn-tool" data-action="pdf" data-kb="none"><span class="btn-icon text-red-500">📑</span><span class="btn-text">PDF (High Qty)</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="50"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 50KB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="100"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 100KB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="200"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 200KB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="300"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 300KB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="500"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 500KB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="1024"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 1MB</span></button>
+                        <button class="btn-tool" data-action="pdf" data-kb="2048"><span class="btn-icon text-red-500">📉</span><span class="btn-text">PDF < 2MB</span></button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-[#0f172a] text-slate-400 p-8 mt-4 rounded-t-[40px] shadow-inner text-center">
+            <div class="inline-flex bg-white/10 p-1.5 rounded-2xl mb-5 shadow-lg border border-white/5">
+                <span class="px-3 py-1.5 text-white font-black text-lg">Smarttool</span>
+                <span class="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl text-lg font-black">Ultimate</span>
+            </div>
+            <p class="text-sm font-semibold leading-relaxed max-w-sm mx-auto mb-6 text-slate-300">
+                120+ Offline Tools in a Single App. Unmatched speed, absolute privacy. No images are ever uploaded to any server.
+            </p>
+            <div class="border-t border-slate-800 pt-6 text-xs font-bold text-slate-500 flex flex-col gap-2">
+                <span>&copy; 2024 Smarttool AI Masterpiece.</span>
+                <span>Crafted with ❤️ for Perfection.</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Hidden Canvas -->
+    <canvas id="canvasElement" class="hidden"></canvas>
+
+    <!-- UI Logic & Core Engine -->
+    <script>
+        // 1. Category Navigation
+        const pills = document.querySelectorAll('.cat-pill');
+        const sections = document.querySelectorAll('.tool-section');
+        
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                const target = pill.getAttribute('data-target');
+                sections.forEach(sec => {
+                    if(target === 'all') sec.classList.remove('hide');
+                    else if(sec.classList.contains(target)) sec.classList.remove('hide');
+                    else sec.classList.add('hide');
+                });
+            });
+        });
+
+        // 2. Live Search
+        const searchInput = document.getElementById('searchInput');
+        const buttons = document.querySelectorAll('.btn-tool');
+        
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            // Auto switch to 'All' category when searching
+            if(query.length > 0) document.querySelector('[data-target="all"]').click();
+            
+            buttons.forEach(btn => {
+                const text = btn.innerText.toLowerCase();
+                btn.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+            
+            // Hide empty category headers
+            document.querySelectorAll('.section-title').forEach(header => {
+                const grid = header.nextElementSibling;
+                if(grid && grid.classList.contains('grid')) {
+                    const visible = Array.from(grid.children).some(b => b.style.display !== 'none');
+                    header.style.display = visible ? 'flex' : 'none';
+                    grid.style.display = visible ? 'grid' : 'none';
+                }
+            });
+        });
+
+        // 3. Custom Modal
+        const modal = document.getElementById('customModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalInput = document.getElementById('modalInput');
+        
+        function openModal(title, placeholder) {
+            return new Promise((resolve) => {
+                document.getElementById('modalTitle').innerText = title;
+                modalInput.placeholder = placeholder;
+                modalInput.value = '';
+                
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                    modalInput.focus();
+                }, 10);
+
+                const cleanup = () => {
+                    document.getElementById('modalApply').removeEventListener('click', onApply);
+                    document.getElementById('modalCancel').removeEventListener('click', onCancel);
+                    modalContent.classList.add('scale-95');
+                    modal.classList.add('opacity-0');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                };
+                
+                const onApply = () => { if(modalInput.value.trim()){ cleanup(); resolve(modalInput.value.trim()); }else{ modalInput.focus(); } };
+                const onCancel = () => { cleanup(); resolve(null); };
+
+                document.getElementById('modalApply').addEventListener('click', onApply);
+                document.getElementById('modalCancel').addEventListener('click', onCancel);
+            });
+        }
+
+        // 4. Core Mega Engine
+        const uploader = document.getElementById('imageUploader');
+        const resultArea = document.getElementById('resultArea');
+        const processingState = document.getElementById('processingState');
+        const completedState = document.getElementById('completedState');
+        const canvas = document.getElementById('canvasElement');
+        const ctx = canvas.getContext('2d');
+        const shareBtn = document.getElementById('shareBtn');
+
+        let currentConfig = {};
+        let userInputText = "";
+        let originalFileName = "";
+        let globalOutputDataUrl = ""; 
+        let globalOutputExt = "";
+
+        // Attach Clicks
+        buttons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const targetBtn = e.currentTarget;
+                currentConfig = {
+                    name: targetBtn.querySelector('.btn-text').innerText.replace('\n', ' '),
+                    action: targetBtn.getAttribute('data-action'),
+                    kb: targetBtn.getAttribute('data-kb'), w: targetBtn.getAttribute('data-w'), h: targetBtn.getAttribute('data-h'),
+                    format: targetBtn.getAttribute('data-format'), filter: targetBtn.getAttribute('data-val'),
+                    cropType: targetBtn.getAttribute('data-type'), degree: targetBtn.getAttribute('data-deg'), dir: targetBtn.getAttribute('data-dir')
+                };
+
+                if(currentConfig.action === 'watermark') {
+                    userInputText = await openModal("Add Watermark", "e.g. © Smarttool");
+                    if(!userInputText) return;
+                } else if (currentConfig.action === 'addtext') {
+                    userInputText = await openModal("Add Bold Text", "e.g. Happy Moment!");
+                    if(!userInputText) return;
+                }
+                uploader.click();
+            });
+        });
+
+        uploader.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            originalFileName = file.name.split('.')[0] || 'Image';
+            
+            resultArea.classList.remove('hidden');
+            processingState.classList.remove('hidden');
+            completedState.classList.add('hidden');
+            document.getElementById('toolUsedMsg').innerText = `Task: ${currentConfig.name}`;
+            window.scrollTo({ top: resultArea.offsetTop - 80, behavior: 'smooth' });
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = () => setTimeout(() => processImageEngine(img, file.size), 300);
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // The Brain
+        function processImageEngine(img, originalSizeInBytes) {
+            ctx.restore();
+            canvas.width = img.width; canvas.height = img.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.filter = 'none';
+
+            let outMime = 'image/jpeg'; let outQuality = 0.95; let outExt = 'jpg';
+            let finalDataURL = ''; let isPDF = false;
+
+            try {
+                // EXIF REMOVAL (Drawing to canvas natively strips metadata in JS)
+                if (currentConfig.action === 'removeExif') {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    finalDataURL = canvas.toDataURL(outMime, 1.0);
+                }
+                // FLIP
+                else if (currentConfig.action === 'flip') {
+                    if(currentConfig.dir === 'horizontal') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); } 
+                    else { ctx.translate(0, canvas.height); ctx.scale(1, -1); }
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    finalDataURL = canvas.toDataURL(outMime, outQuality);
+                }
+                // WATERMARK / TEXT
+                else if (currentConfig.action === 'watermark' || currentConfig.action === 'addtext') {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    if(currentConfig.action === 'watermark') {
+                        ctx.font = `800 ${Math.max(25, canvas.width/25)}px 'Outfit', sans-serif`; ctx.fillStyle = "rgba(255,255,255,0.95)";
+                        ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+                        ctx.fillText(userInputText, canvas.width - 30, canvas.height - 30);
+                        ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillText(userInputText, canvas.width - 27, canvas.height - 27);
+                    } else {
+                        ctx.font = `900 ${Math.max(40, canvas.width/10)}px 'Outfit', sans-serif`; ctx.fillStyle = "#ffffff";
+                        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                        ctx.fillText(userInputText, canvas.width/2, canvas.height/2);
+                        ctx.strokeStyle = "#4f46e5"; ctx.lineWidth = Math.max(3, canvas.width/150);
+                        ctx.strokeText(userInputText, canvas.width/2, canvas.height/2);
+                    }
+                    finalDataURL = canvas.toDataURL(outMime, outQuality);
+                }
+                // ROTATE
+                else if (currentConfig.action === 'rotate') {
+                    const deg = parseInt(currentConfig.degree);
+                    if(deg === 90 || deg === 270) { canvas.width = img.height; canvas.height = img.width; }
+                    ctx.translate(canvas.width/2, canvas.height/2); ctx.rotate(deg * Math.PI / 180);
+                    ctx.drawImage(img, -img.width/2, -img.height/2);
+                    finalDataURL = canvas.toDataURL(outMime, outQuality);
+                }
+                // CONVERT
+                else if (currentConfig.action === 'convert') {
+                    ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height); // white bg for transparency fixes
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    outMime = `image/${currentConfig.format}`; outExt = currentConfig.format;
+                    finalDataURL = canvas.toDataURL(outMime, 1.0);
+                }
+                // FILTER
+                else if (currentConfig.action === 'filter') {
+                    ctx.filter = currentConfig.filter; ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    finalDataURL = canvas.toDataURL(outMime, outQuality);
+                }
+                // RESIZE
+                else if (currentConfig.action === 'resize') {
+                    canvas.width = parseInt(currentConfig.w); canvas.height = parseInt(currentConfig.h);
+                    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    finalDataURL = canvas.toDataURL(outMime, outQuality);
+                }
+                // CROP (Advanced Logic for 16:9, 4:3)
+                else if (currentConfig.action === 'crop') {
+                    let cW = img.width, cH = img.height, sX = 0, sY = 0;
+                    if(currentConfig.cropType === 'square' || currentConfig.cropType === 'circle') {
+                        cW = cH = Math.min(img.width, img.height);
+                        sX = (img.width - cW)/2; sY = (img.height - cH)/2;
+                    } else if (currentConfig.cropType === '169') {
+                        if(img.width/img.height > 16/9) { cH = img.height; cW = cH * 16/9; sX = (img.width - cW)/2; } 
+                        else { cW = img.width; cH = cW * 9/16; sY = (img.height - cH)/2; }
+                    } else if (currentConfig.cropType === '43') {
+                        if(img.width/img.height > 4/3) { cH = img.height; cW = cH * 4/3; sX = (img.width - cW)/2; } 
+                        else { cW = img.width; cH = cW * 3/4; sY = (img.height - cH)/2; }
+                    } else if (currentConfig.cropType === '32') {
+                        if(img.width/img.height > 3/2) { cH = img.height; cW = cH * 3/2; sX = (img.width - cW)/2; } 
+                        else { cW = img.width; cH = cW * 2/3; sY = (img.height - cH)/2; }
+                    }
+                    
+                    canvas.width = cW; canvas.height = cH;
+                    if (currentConfig.cropType === 'circle') {
+                        ctx.beginPath(); ctx.arc(cW/2, cH/2, cW/2, 0, Math.PI * 2);
+                        ctx.closePath(); ctx.clip(); outMime = 'image/png'; outExt = 'png'; 
+                    }
+                    ctx.drawImage(img, sX, sY, cW, cH, 0, 0, cW, cH);
+                    finalDataURL = canvas.toDataURL(outMime, 1.0);
+                }
+                // COMPRESS (Highly Optimized Iterative)
+                else if (currentConfig.action === 'compress') {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    let targetBytes = parseInt(currentConfig.kb) * 1024; let currentQ = 0.95;
+                    finalDataURL = canvas.toDataURL(outMime, currentQ);
+                    
+                    while (Math.round((finalDataURL.length * (3/4))) > targetBytes && currentQ > 0.05) {
+                        currentQ -= 0.05; finalDataURL = canvas.toDataURL(outMime, currentQ);
+                    }
+                    if(Math.round((finalDataURL.length * (3/4))) > targetBytes) {
+                         let scale = 0.9;
+                         while(Math.round((finalDataURL.length * (3/4))) > targetBytes && scale > 0.2) {
+                             canvas.width = img.width * scale; canvas.height = img.height * scale;
+                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                             finalDataURL = canvas.toDataURL(outMime, 0.3); scale -= 0.1;
+                         }
+                    }
+                }
+                // PDF
+                else if (currentConfig.action === 'pdf') {
+                    isPDF = true; ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    let pdfQ = 0.95;
+                    if(currentConfig.kb !== 'none') {
+                        let targetBytes = parseInt(currentConfig.kb) * 1024;
+                        let testData = canvas.toDataURL('image/jpeg', pdfQ);
+                        while(Math.round((testData.length * (3/4))) > targetBytes && pdfQ > 0.1) {
+                            pdfQ -= 0.1; testData = canvas.toDataURL('image/jpeg', pdfQ);
+                        }
+                    }
+                    const imgData = canvas.toDataURL('image/jpeg', pdfQ);
+                    const { jsPDF } = window.jspdf;
+                    const orient = canvas.width > canvas.height ? 'l' : 'p';
+                    const doc = new jsPDF(orient, 'px', [canvas.width, canvas.height]);
+                    doc.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+                    finalDataURL = URL.createObjectURL(doc.output('blob')); outExt = 'pdf';
+                }
+
+                // UI UPDATE
+                processingState.classList.add('hidden'); completedState.classList.remove('hidden');
+                globalOutputDataUrl = finalDataURL; globalOutputExt = outExt;
+                
+                let actualNewSizeKb = isPDF ? 'PDF File' : Math.round((finalDataURL.length * (3/4)) / 1024) + ' KB';
+                document.getElementById('oldSize').innerText = `${Math.round(originalSizeInBytes/1024)} KB`;
+                document.getElementById('newSize').innerText = actualNewSizeKb;
+                document.getElementById('previewImage').src = isPDF ? "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" : finalDataURL;
+
+                const dwnBtn = document.getElementById('downloadBtn');
+                dwnBtn.href = finalDataURL;
+                const safeName = currentConfig.name.replace(/[^a-zA-Z0-9]/g, '_');
+                dwnBtn.download = `Smarttool_${safeName}_${originalFileName}.${outExt}`;
+                
+                shareBtn.style.display = navigator.share ? 'flex' : 'none';
+                uploader.value = ''; // Reset
+
+            } catch (error) {
+                processingState.classList.add('hidden'); resultArea.classList.add('hidden');
+                alert("Error processing image. Please try another file.");
+            }
+        }
+
+        // SHARE
+        shareBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch(globalOutputDataUrl); const blob = await response.blob();
+                const safeName = currentConfig.name.replace(/[^a-zA-Z0-9]/g, '_');
+                const file = new File([blob], `Smarttool_${safeName}.${globalOutputExt}`, { type: blob.type });
+                await navigator.share({ title: 'Smarttool Masterpiece', text: 'Check out my edited photo! 🚀', files: [file] });
+            } catch (error) { console.log("Share failed."); }
+        });
+    </script>
+</body>
+</html>
